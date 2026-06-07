@@ -99,7 +99,6 @@
 taskforge/
 ├── docker-compose.yml            # One-command startup
 ├── .gitignore
-├── .github/workflows/ci.yml      # GitHub Actions
 ├── backend/
 │   ├── Dockerfile
 │   ├── pom.xml
@@ -179,7 +178,6 @@ taskforge/
 - **Java 21+** — [Download](https://adoptium.net/)
 - **Maven 3.9+** — [Download](https://maven.apache.org/download.cgi)
 - **Node.js 22+** — [Download](https://nodejs.org/)
-- **Docker & Docker Compose** — [Get Docker](https://docs.docker.com/get-docker/)
 
 ---
 
@@ -204,15 +202,10 @@ docker compose up -d
 ```bash
 cd backend
 
-# Start PostgreSQL (or use your own)
-docker run -d --name taskforge-pg \
-  -e POSTGRES_DB=taskforge \
-  -e POSTGRES_USER=taskforge \
-  -e POSTGRES_PASSWORD=taskforge \
-  -p 5432:5432 postgres:16-alpine
-
-# Run
+# Run with H2 in-memory database (default dev profile)
 mvn spring-boot:run
+
+# Backend starts at http://localhost:8080 with an H2 console at /h2-console
 ```
 
 ### Frontend
@@ -440,7 +433,7 @@ TaskForge exists to demonstrate **full-stack development proficiency**:
 - **Modern Frontend** — React 19, TypeScript, hooks, libraries
 - **Secure APIs** — JWT auth with token refresh
 - **Clean Code** — Layered architecture, separation of concerns, no Lombok
-- **DevOps Ready** — Docker Compose, Nginx reverse proxy, CI pipeline
+- **DevOps Ready** — Docker Compose, Nginx reverse proxy, multi-environment config
 
 ---
 
