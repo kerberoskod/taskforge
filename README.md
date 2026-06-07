@@ -35,13 +35,18 @@
 ## Features
 
 | Feature | Description |
-|---|---|
+|---|---|---|
 | **Kanban Board** | Drag-and-drop tasks across TODO → IN_PROGRESS → REVIEW → DONE |
 | **Real-Time Sync** | WebSocket broadcasts changes to all connected clients instantly |
-| **JWT Authentication** | Secure register/login with access + refresh token flow |
+| **JWT Authentication** | Secure register/login with access + refresh token flow (httpOnly cookie) |
 | **Project Management** | Create, rename, and delete projects |
-| **Task Details** | Description, status, timestamps, assignee |
+| **Task Details** | Description, status, timestamps, assignee, due date, labels |
+| **Task Edit Modal** | Inline modal for editing all task fields |
 | **Comments** | Add and view comments on each task |
+| **Search & Filter** | Search by title, filter by assignee, status, due date, labels |
+| **Pagination** | Paginated task lists with configurable page size |
+| **Activity Log** | Track all changes on tasks (status, assignee, etc.) |
+| **Rate Limiting** | Bucket4j-based rate limiting on API endpoints |
 | **Responsive UI** | Apple-inspired design, works on desktop and tablet |
 | **Dockerized** | One-command startup with docker-compose |
 
@@ -106,10 +111,12 @@ taskforge/
 │       ├── TaskForgeApplication.java
 │       ├── config/
 │       │   ├── SecurityConfig.java         # Spring Security + CORS
-│       │   └── WebSocketConfig.java        # STOMP broker
+│       │   ├── WebSocketConfig.java        # STOMP broker
+│       │   └── RateLimitingFilter.java     # Bucket4j rate limiter
 │       ├── auth/
 │       │   ├── controller/AuthController.java
-│       │   ├── dto/{LoginRequest,RegisterRequest,AuthResponse,RefreshTokenRequest}.java
+│       │   ├── controller/UserController.java
+│       │   ├── dto/{LoginRequest,RegisterRequest,AuthResponse,UserResponse}.java
 │       │   ├── entity/User.java
 │       │   ├── repository/UserRepository.java
 │       │   ├── service/AuthService.java
@@ -135,6 +142,24 @@ taskforge/
 │       │   ├── entity/Comment.java
 │       │   ├── repository/CommentRepository.java
 │       │   └── service/CommentService.java
+│       ├── label/
+│       │   ├── controller/LabelController.java
+│       │   ├── dto/{CreateLabelRequest,LabelResponse,SetTaskLabelsRequest}.java
+│       │   ├── entity/Label.java
+│       │   ├── repository/LabelRepository.java
+│       │   └── service/LabelService.java
+│       ├── collaborator/
+│       │   ├── controller/CollaboratorController.java
+│       │   ├── dto/{CollaboratorRequest,CollaboratorResponse}.java
+│       │   ├── entity/ProjectCollaborator.java
+│       │   ├── repository/ProjectCollaboratorRepository.java
+│       │   └── service/CollaboratorService.java
+│       ├── activity/
+│       │   ├── controller/ActivityLogController.java
+│       │   ├── dto/ActivityLogResponse.java
+│       │   ├── entity/ActivityLog.java
+│       │   ├── repository/ActivityLogRepository.java
+│       │   └── service/ActivityLogService.java
 │       ├── websocket/
 │       │   └── BoardEventController.java   # STOMP message handlers
 │       └── exception/
