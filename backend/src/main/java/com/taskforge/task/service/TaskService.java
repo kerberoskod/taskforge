@@ -1,5 +1,7 @@
 package com.taskforge.task.service;
 
+import com.taskforge.project.entity.Project;
+import com.taskforge.project.repository.ProjectRepository;
 import com.taskforge.task.dto.*;
 import com.taskforge.task.entity.Task;
 import com.taskforge.task.entity.TaskStatus;
@@ -17,9 +19,11 @@ import java.util.UUID;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository) {
         this.taskRepository = taskRepository;
+        this.projectRepository = projectRepository;
     }
 
     public List<TaskResponse> getTasksByProject(UUID projectId) {
@@ -30,6 +34,9 @@ public class TaskService {
     }
 
     public TaskResponse createTask(UUID projectId, CreateTaskRequest request) {
+        if (!projectRepository.existsById(projectId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
         TaskStatus status = TaskStatus.TODO;
         if (request.getStatus() != null) {
             try {
@@ -83,17 +90,25 @@ public class TaskService {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
+        TaskStatus oldStatus = task.getStatus();
         TaskStatus newStatus = TaskStatus.valueOf(request.getStatus().toUpperCase());
         task.setStatus(newStatus);
         task.setPosition(request.getPosition());
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
 
-        List<Task> allTasks = taskRepository.findByProjectIdAndStatusOrderByPositionAsc(projectId, newStatus);
-        for (int i = 0; i < allTasks.size(); i++) {
-            allTasks.get(i).setPosition(i);
+        rebalanceColumn(projectId, newStatus);
+        if (oldStatus != newStatus) {
+            rebalanceColumn(projectId, oldStatus);
         }
-        taskRepository.saveAll(allTasks);
+    }
+
+    private void rebalanceColumn(UUID projectId, TaskStatus status) {
+        List<Task> tasks = taskRepository.findByProjectIdAndStatusOrderByPositionAsc(projectId, status);
+        for (int i = 0; i < tasks.size(); i++) {
+            tasks.get(i).setPosition(i);
+        }
+        taskRepository.saveAll(tasks);
     }
 
     public void deleteTask(UUID projectId, UUID taskId, UUID userId) {
@@ -101,6 +116,11 @@ public class TaskService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
         if (!task.getProjectId().equals(projectId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task does not belong to this project");
+        }
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        if (!project.getOwnerId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this project");
         }
         taskRepository.deleteById(taskId);
     }

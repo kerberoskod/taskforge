@@ -37,8 +37,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
         if (!project.getOwnerId().equals(userId)) {
-            // For simplicity, owner-only access. In production, add member table.
-            // We'll skip membership check for now and allow any authenticated user to view.
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this project");
         }
         return new ProjectResponse(project);
     }
@@ -46,6 +45,9 @@ public class ProjectService {
     public ProjectResponse update(UUID projectId, CreateProjectRequest request, UUID userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        if (!project.getOwnerId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this project");
+        }
         project.setName(request.getName());
         project.setDescription(request.getDescription());
         projectRepository.save(project);
