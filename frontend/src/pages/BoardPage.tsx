@@ -11,6 +11,7 @@ import Sidebar from '../components/layout/Sidebar';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Modal from '../components/ui/Modal';
+import { BoardColumnSkeleton } from '../components/ui/Skeleton';
 
 const COLUMNS: { key: TaskStatus; label: string; color: string }[] = [
   { key: 'TODO', label: 'To Do', color: 'bg-gray-100' },
@@ -30,7 +31,7 @@ export default function BoardPage() {
     enabled: !!projectId,
   });
 
-  const { data: tasks = [] } = useQuery({
+  const { data: tasks = [], isLoading: tasksLoading } = useQuery({
     queryKey: ['tasks', projectId],
     queryFn: () => getTasks(projectId!),
     enabled: !!projectId,
@@ -118,26 +119,34 @@ export default function BoardPage() {
   };
 
   return (
-    <div className="flex h-screen bg-white">
+    <div className="flex h-screen bg-white dark:bg-gray-950">
       <Sidebar projects={projects} currentProjectId={projectId} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-apple-border flex items-center justify-between">
+        <div className="p-4 border-b border-apple-border dark:border-gray-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSidebar}
-              className="md:hidden text-apple-dark p-1"
+              className="md:hidden text-apple-dark dark:text-gray-100 p-1"
               aria-label="Toggle sidebar"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <h1 className="text-lg md:text-xl font-bold text-apple-dark">{project?.name || 'Board'}</h1>
+            <h1 className="text-lg md:text-xl font-bold text-apple-dark dark:text-gray-100">{project?.name || 'Board'}</h1>
           </div>
           <Button onClick={() => setShowCreate(true)} className="text-sm md:text-base">Add Task</Button>
         </div>
 
+        {tasksLoading ? (
+          <div className="flex-1 flex md:flex-row flex-col gap-3 md:gap-4 p-3 md:p-4 overflow-x-auto">
+            <BoardColumnSkeleton />
+            <BoardColumnSkeleton />
+            <BoardColumnSkeleton />
+            <BoardColumnSkeleton />
+          </div>
+        ) : (
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex-1 flex md:flex-row flex-col gap-3 md:gap-4 p-3 md:p-4 overflow-x-auto">
             {COLUMNS.map((col) => {
@@ -147,10 +156,10 @@ export default function BoardPage() {
 
               return (
                 <div key={col.key} className="flex-1 min-w-[250px] flex flex-col">
-                  <div className={`rounded-t-xl px-3 py-2 ${col.color}`}>
-                    <h3 className="font-semibold text-sm text-apple-dark">
+                  <div className={`rounded-t-xl px-3 py-2 ${col.color} dark:opacity-90`}>
+                    <h3 className="font-semibold text-sm text-apple-dark dark:text-gray-100">
                       {col.label}
-                      <span className="ml-2 text-apple-gray font-normal">
+                      <span className="ml-2 text-apple-gray dark:text-gray-400 font-normal">
                         {columnTasks.length}
                       </span>
                     </h3>
@@ -161,7 +170,7 @@ export default function BoardPage() {
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className={`flex-1 p-2 rounded-b-xl ${
-                          snapshot.isDraggingOver ? 'bg-apple-light' : col.color
+                          snapshot.isDraggingOver ? 'bg-apple-light dark:bg-gray-800' : col.color
                         } min-h-[200px] transition-colors`}
                       >
                         {columnTasks.map((task, index) => (
@@ -172,13 +181,13 @@ export default function BoardPage() {
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                                 onClick={() => openTaskDetail(task)}
-                                className={`bg-white rounded-lg p-3 mb-2 shadow-sm border border-apple-border
-                                  cursor-pointer hover:shadow-md transition-shadow
+                                className={`bg-white dark:bg-gray-900 rounded-lg p-3 mb-2 shadow-sm border border-apple-border dark:border-gray-700
+                                  cursor-pointer hover:shadow-md dark:hover:shadow-gray-900/50 transition-shadow
                                   ${snapshot.isDragging ? 'shadow-lg rotate-2' : ''}`}
                               >
-                                <p className="text-sm font-medium text-apple-dark">{task.title}</p>
+                                <p className="text-sm font-medium text-apple-dark dark:text-gray-100">{task.title}</p>
                                 {task.description && (
-                                  <p className="text-xs text-apple-gray mt-1 line-clamp-2">
+                                  <p className="text-xs text-apple-gray dark:text-gray-400 mt-1 line-clamp-2">
                                     {task.description}
                                   </p>
                                 )}
@@ -195,6 +204,7 @@ export default function BoardPage() {
             })}
           </div>
         </DragDropContext>
+        )}
       </main>
 
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Add Task">
@@ -242,31 +252,32 @@ export default function BoardPage() {
       >
         {selectedTask && (
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-apple-gray">{selectedTask.description || 'No description'}</p>
-            <div className="flex gap-2 text-xs text-apple-gray">
-              <span className="px-2 py-1 bg-apple-light rounded">{selectedTask.status}</span>
+            <p className="text-sm text-apple-gray dark:text-gray-400">{selectedTask.description || 'No description'}</p>
+            <div className="flex gap-2 text-xs text-apple-gray dark:text-gray-400">
+              <span className="px-2 py-1 bg-apple-light dark:bg-gray-800 rounded">{selectedTask.status}</span>
               <span>{new Date(selectedTask.createdAt).toLocaleDateString()}</span>
             </div>
 
-            <div className="border-t border-apple-border pt-4">
-              <h4 className="text-sm font-semibold text-apple-dark mb-3">Comments</h4>
+            <div className="border-t border-apple-border dark:border-gray-700 pt-4">
+              <h4 className="text-sm font-semibold text-apple-dark dark:text-gray-100 mb-3">Comments</h4>
               <div className="flex flex-col gap-3 mb-4 max-h-48 overflow-y-auto">
                 {comments.map((c) => (
                   <div key={c.id} className="text-sm">
-                    <span className="font-medium text-apple-dark">{c.authorName}</span>
-                    <span className="text-apple-gray text-xs ml-2">
+                    <span className="font-medium text-apple-dark dark:text-gray-100">{c.authorName}</span>
+                    <span className="text-apple-gray dark:text-gray-400 text-xs ml-2">
                       {new Date(c.createdAt).toLocaleString()}
                     </span>
-                    <p className="text-apple-dark mt-1">{c.content}</p>
+                    <p className="text-apple-dark dark:text-gray-100 mt-1">{c.content}</p>
                   </div>
                 ))}
                 {comments.length === 0 && (
-                  <p className="text-xs text-apple-gray">No comments yet</p>
+                  <p className="text-xs text-apple-gray dark:text-gray-400">No comments yet</p>
                 )}
               </div>
               <div className="flex gap-2">
                 <input
-                  className="flex-1 px-3 py-2 border border-apple-border rounded-lg text-sm
+                  className="flex-1 px-3 py-2 border border-apple-border dark:border-gray-600 rounded-lg text-sm
+                    bg-white dark:bg-gray-800 text-apple-dark dark:text-gray-100
                     focus:outline-none focus:ring-2 focus:ring-apple-blue"
                   placeholder="Write a comment..."
                   value={commentText}

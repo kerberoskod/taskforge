@@ -29,10 +29,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-apple-light flex items-center justify-center px-4">
-      <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm w-full max-w-sm">
-        <h1 className="text-xl md:text-2xl font-bold text-apple-dark mb-1">TaskForge</h1>
-        <p className="text-apple-gray text-sm mb-6">Sign in to your account</p>
+    <div className="min-h-screen bg-apple-light dark:bg-gray-950 flex items-center justify-center px-4">
+      <div className="bg-white dark:bg-gray-900 p-6 md:p-8 rounded-2xl shadow-sm w-full max-w-sm">
+        <h1 className="text-xl md:text-2xl font-bold text-apple-dark dark:text-gray-100 mb-1">TaskForge</h1>
+        <p className="text-apple-gray dark:text-gray-400 text-sm mb-6">Sign in to your account</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
@@ -50,7 +50,7 @@ export default function LoginPage() {
             required
           />
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-red-400">{error}</p>}
 
           <Button type="submit" loading={loading}>
             Sign In

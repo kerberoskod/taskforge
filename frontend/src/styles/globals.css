@@ -8,3 +8,67 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.dark body,
+body.dark {
+  @apply bg-gray-950 text-gray-100;
+}
+
+.dark .bg-white {
+  @apply bg-gray-900;
+}
+
+.dark .bg-apple-light {
+  @apply bg-gray-900;
+}
+
+.dark .border-apple-border {
+  @apply border-gray-700;
+}
+
+.dark .text-apple-dark {
+  @apply text-gray-100;
+}
+
+.dark .text-apple-gray {
+  @apply text-gray-400;
+}
+
+.dark .bg-gray-100 {
+  @apply bg-gray-800;
+}
+
+.dark .bg-blue-50 {
+  @apply bg-blue-950/40;
+}
+
+.dark .bg-yellow-50 {
+  @apply bg-yellow-950/40;
+}
+
+.dark .bg-green-50 {
+  @apply bg-green-950/40;
+}
+
+.dark .hover\:bg-apple-light:hover {
+  @apply hover:bg-gray-800;
+}
+
+.dark .hover\:bg-white\/50:hover {
+  @apply hover:bg-gray-800;
+}
+
+.dark .shadow-sm {
+  @apply shadow-gray-900/50;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  @apply bg-gray-800 border-gray-600 text-gray-100;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  @apply text-gray-500;
+}
