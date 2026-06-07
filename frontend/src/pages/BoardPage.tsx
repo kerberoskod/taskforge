@@ -6,6 +6,7 @@ import { getProject } from '../api/projects';
 import { getTasks, createTask, updateTask, updateTaskPosition, Task, TaskStatus } from '../api/tasks';
 import { getComments, createComment, Comment } from '../api/comments';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { useSidebarStore } from '../store/sidebarStore';
 import Sidebar from '../components/layout/Sidebar';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -21,6 +22,7 @@ const COLUMNS: { key: TaskStatus; label: string; color: string }[] = [
 export default function BoardPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const queryClient = useQueryClient();
+  const toggleSidebar = useSidebarStore((s) => s.toggle);
 
   const { data: project } = useQuery({
     queryKey: ['project', projectId],
@@ -121,14 +123,23 @@ export default function BoardPage() {
 
       <main className="flex-1 flex flex-col overflow-hidden">
         <div className="p-4 border-b border-apple-border flex items-center justify-between">
-          <h1 className="text-xl font-bold text-apple-dark">{project?.name || 'Board'}</h1>
-          <div className="flex gap-2">
-            <Button onClick={() => setShowCreate(true)}>Add Task</Button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleSidebar}
+              className="md:hidden text-apple-dark p-1"
+              aria-label="Toggle sidebar"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h1 className="text-lg md:text-xl font-bold text-apple-dark">{project?.name || 'Board'}</h1>
           </div>
+          <Button onClick={() => setShowCreate(true)} className="text-sm md:text-base">Add Task</Button>
         </div>
 
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex-1 flex gap-4 p-4 overflow-x-auto">
+          <div className="flex-1 flex md:flex-row flex-col gap-3 md:gap-4 p-3 md:p-4 overflow-x-auto">
             {COLUMNS.map((col) => {
               const columnTasks = tasks
                 .filter((t) => t.status === col.key)

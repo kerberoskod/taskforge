@@ -88,14 +88,6 @@ public class TaskService {
         task.setPosition(request.getPosition());
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
-
-        List<Task> siblings = taskRepository.findByProjectIdAndStatus(projectId, newStatus);
-        for (int i = 0; i < siblings.size(); i++) {
-            Task sibling = siblings.get(i);
-            if (!sibling.getId().equals(request.getTaskId())) {
-                int newPos = i < request.getPosition() ? i : i;
-            }
-        }
     }
 
     public void deleteTask(UUID taskId) {

@@ -14,6 +14,7 @@
     <groupId>com.taskforge</groupId>
     <artifactId>taskforge</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
     <name>TaskForge</name>
     <description>Project Management Board</description>
 
@@ -46,6 +47,11 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>

@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface TaskRepository extends JpaRepository<Task, UUID> {
     List<Task> findByProjectIdOrderByPositionAsc(UUID projectId);
     int countByProjectIdAndStatus(UUID projectId, com.taskforge.task.entity.TaskStatus status);
+    List<Task> findByProjectIdAndStatus(UUID projectId, com.taskforge.task.entity.TaskStatus status);
 }

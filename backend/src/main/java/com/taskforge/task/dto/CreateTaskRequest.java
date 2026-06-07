@@ -2,6 +2,8 @@ package com.taskforge.task.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.UUID;
+
 public class CreateTaskRequest {
 
     @NotBlank

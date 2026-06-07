@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProjects, createProject, deleteProject, Project } from '../api/projects';
+import { useSidebarStore } from '../store/sidebarStore';
 import Sidebar from '../components/layout/Sidebar';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -13,6 +14,7 @@ export default function DashboardPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const toggleSidebar = useSidebarStore((s) => s.toggle);
 
   const createMut = useMutation({
     mutationFn: () => createProject({ name, description }),
@@ -33,9 +35,20 @@ export default function DashboardPage() {
     <div className="flex h-screen bg-white">
       <Sidebar projects={projects} />
 
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-apple-dark">Projects</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleSidebar}
+              className="md:hidden p-2 -ml-2 text-apple-dark hover:bg-apple-light rounded-lg"
+              aria-label="Toggle sidebar"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <h1 className="text-xl md:text-2xl font-bold text-apple-dark">Projects</h1>
+          </div>
           <Button onClick={() => setShowCreate(true)}>New Project</Button>
         </div>
 

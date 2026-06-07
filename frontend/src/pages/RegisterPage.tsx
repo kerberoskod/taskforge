@@ -30,9 +30,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-apple-light flex items-center justify-center">
-      <div className="bg-white p-8 rounded-2xl shadow-sm w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-apple-dark mb-1">TaskForge</h1>
+    <div className="min-h-screen bg-apple-light flex items-center justify-center px-4">
+      <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm w-full max-w-sm">
+        <h1 className="text-xl md:text-2xl font-bold text-apple-dark mb-1">TaskForge</h1>
         <p className="text-apple-gray text-sm mb-6">Create your account</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
