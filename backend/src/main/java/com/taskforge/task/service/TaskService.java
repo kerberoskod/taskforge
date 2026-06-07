@@ -88,9 +88,20 @@ public class TaskService {
         task.setPosition(request.getPosition());
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
+
+        List<Task> allTasks = taskRepository.findByProjectIdAndStatusOrderByPositionAsc(projectId, newStatus);
+        for (int i = 0; i < allTasks.size(); i++) {
+            allTasks.get(i).setPosition(i);
+        }
+        taskRepository.saveAll(allTasks);
     }
 
-    public void deleteTask(UUID taskId) {
+    public void deleteTask(UUID projectId, UUID taskId, UUID userId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+        if (!task.getProjectId().equals(projectId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task does not belong to this project");
+        }
         taskRepository.deleteById(taskId);
     }
 }

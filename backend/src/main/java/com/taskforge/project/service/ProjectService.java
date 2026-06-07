@@ -52,7 +52,12 @@ public class ProjectService {
         return new ProjectResponse(project);
     }
 
-    public void delete(UUID projectId) {
+    public void delete(UUID projectId, UUID userId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        if (!project.getOwnerId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this project");
+        }
         projectRepository.deleteById(projectId);
     }
 }
