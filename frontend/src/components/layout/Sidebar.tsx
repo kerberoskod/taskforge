@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useSidebarStore } from '../../store/sidebarStore';
 import { useThemeStore } from '../../store/themeStore';
+import { logoutApi } from '../../api/auth';
 
 interface SidebarProps {
   projects: { id: string; name: string }[];
@@ -16,7 +17,12 @@ export default function Sidebar({ projects, currentProjectId }: SidebarProps) {
   const closeSidebar = useSidebarStore((s) => s.close);
   const { theme, toggle } = useThemeStore();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutApi();
+    } catch {
+      // ignore — clear local state regardless
+    }
     logout();
     navigate('/login');
   };

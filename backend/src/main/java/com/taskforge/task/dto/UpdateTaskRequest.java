@@ -1,5 +1,6 @@
 package com.taskforge.task.dto;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public class UpdateTaskRequest {
@@ -8,6 +9,8 @@ public class UpdateTaskRequest {
     private String description;
     private String status;
     private UUID assigneeId;
+
+    private LocalDate dueDate;
 
     public String getTitle() {
         return title;
@@ -39,5 +42,13 @@ public class UpdateTaskRequest {
 
     public void setAssigneeId(UUID assigneeId) {
         this.assigneeId = assigneeId;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 }

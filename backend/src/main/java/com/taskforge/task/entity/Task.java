@@ -1,6 +1,7 @@
 package com.taskforge.task.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -29,6 +30,9 @@ public class Task {
 
     @Column(name = "assignee_id")
     private UUID assigneeId;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -79,6 +83,10 @@ public class Task {
         return assigneeId;
     }
 
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -105,6 +113,10 @@ public class Task {
 
     public void setAssigneeId(UUID assigneeId) {
         this.assigneeId = assigneeId;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {

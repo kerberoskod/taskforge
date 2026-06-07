@@ -13,7 +13,6 @@ export interface RegisterData {
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
   user: {
     id: string;
     name: string;
@@ -27,5 +26,8 @@ export const loginApi = (data: LoginData) =>
 export const registerApi = (data: RegisterData) =>
   client.post<AuthResponse>('/auth/register', data).then((r) => r.data);
 
-export const refreshApi = (refreshToken: string) =>
-  client.post<AuthResponse>('/auth/refresh', { refreshToken }).then((r) => r.data);
+export const refreshApi = () =>
+  client.post<AuthResponse>('/auth/refresh').then((r) => r.data);
+
+export const logoutApi = () =>
+  client.post('/auth/logout');

@@ -3,7 +3,9 @@ package com.taskforge.task.dto;
 import com.taskforge.task.entity.Task;
 import com.taskforge.task.entity.TaskStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class TaskResponse {
@@ -15,6 +17,8 @@ public class TaskResponse {
     private int position;
     private UUID projectId;
     private UUID assigneeId;
+    private LocalDate dueDate;
+    private List<UUID> labelIds;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -26,6 +30,8 @@ public class TaskResponse {
         this.position = task.getPosition();
         this.projectId = task.getProjectId();
         this.assigneeId = task.getAssigneeId();
+        this.dueDate = task.getDueDate();
+        this.labelIds = List.of();
         this.createdAt = task.getCreatedAt();
         this.updatedAt = task.getUpdatedAt();
     }
@@ -56,6 +62,18 @@ public class TaskResponse {
 
     public UUID getAssigneeId() {
         return assigneeId;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public List<UUID> getLabelIds() {
+        return labelIds;
+    }
+
+    public void setLabelIds(List<UUID> labelIds) {
+        this.labelIds = labelIds;
     }
 
     public LocalDateTime getCreatedAt() {

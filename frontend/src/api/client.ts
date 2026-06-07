@@ -19,20 +19,14 @@ client.interceptors.response.use(
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        try {
-          const res = await axios.post('/api/auth/refresh', { refreshToken });
-          const { accessToken, refreshToken: newRefresh } = res.data;
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('refreshToken', newRefresh);
-          original.headers.Authorization = `Bearer ${accessToken}`;
-          return client(original);
-        } catch {
-          localStorage.clear();
-          window.location.href = '/login';
-        }
-      } else {
+      try {
+        const res = await axios.post('/api/auth/refresh');
+        const { accessToken } = res.data;
+        localStorage.setItem('accessToken', accessToken);
+        original.headers.Authorization = `Bearer ${accessToken}`;
+        return client(original);
+      } catch {
+        localStorage.clear();
         window.location.href = '/login';
       }
     }

@@ -9,9 +9,8 @@ interface User {
 interface AuthState {
   user: User | null;
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
+  setAuth: (user: User, accessToken: string) => void;
   logout: () => void;
   initialize: () => void;
 }
@@ -19,29 +18,26 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   accessToken: null,
-  refreshToken: null,
   isAuthenticated: false,
 
-  setAuth: (user, accessToken, refreshToken) => {
+  setAuth: (user, accessToken) => {
     localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
-    set({ user, accessToken, refreshToken, isAuthenticated: true });
+    set({ user, accessToken, isAuthenticated: true });
   },
 
   logout: () => {
     localStorage.clear();
-    set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+    set({ user: null, accessToken: null, isAuthenticated: false });
   },
 
   initialize: () => {
     const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
     const userStr = localStorage.getItem('user');
-    if (accessToken && refreshToken && userStr) {
+    if (accessToken && userStr) {
       try {
         const user = JSON.parse(userStr);
-        set({ user, accessToken, refreshToken, isAuthenticated: true });
+        set({ user, accessToken, isAuthenticated: true });
       } catch {
         localStorage.clear();
       }

@@ -4,12 +4,14 @@ import com.taskforge.project.dto.CreateProjectRequest;
 import com.taskforge.project.dto.ProjectResponse;
 import com.taskforge.project.service.ProjectService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,8 +25,9 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectResponse>> getProjects(@AuthenticationPrincipal UUID userId) {
-        return ResponseEntity.ok(projectService.getProjectsByOwner(userId));
+    public ResponseEntity<Page<ProjectResponse>> getProjects(@AuthenticationPrincipal UUID userId,
+                                                              @PageableDefault(size = 12) Pageable pageable) {
+        return ResponseEntity.ok(projectService.getProjectsByOwner(userId, pageable));
     }
 
     @PostMapping

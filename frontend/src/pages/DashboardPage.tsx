@@ -10,8 +10,17 @@ import Modal from '../components/ui/Modal';
 import { CardSkeleton } from '../components/ui/Skeleton';
 
 export default function DashboardPage() {
-  const { data: projects = [], isLoading } = useQuery({ queryKey: ['projects'], queryFn: getProjects });
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(0);
+  const pageSize = 12;
+
+  const { data: pageData, isLoading } = useQuery({
+    queryKey: ['projects', page],
+    queryFn: () => getProjects(page, pageSize),
+  });
+  const projects = pageData?.content ?? [];
+  const totalPages = pageData?.totalPages ?? 0;
+
   const [showCreate, setShowCreate] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -92,6 +101,36 @@ export default function DashboardPage() {
             ))
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="px-3 py-1 text-sm border border-apple-border rounded-lg disabled:opacity-40 hover:bg-apple-light"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`px-3 py-1 text-sm border border-apple-border rounded-lg ${
+                  i === page ? 'bg-apple-blue text-white border-apple-blue' : 'hover:bg-apple-light'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1}
+              className="px-3 py-1 text-sm border border-apple-border rounded-lg disabled:opacity-40 hover:bg-apple-light"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </main>
 
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="New Project">

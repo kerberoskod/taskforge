@@ -20,7 +20,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const res = await registerApi({ name, email, password });
-      setAuth(res.user, res.accessToken, res.refreshToken);
+      setAuth(res.user, res.accessToken);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed');

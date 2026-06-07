@@ -2,6 +2,7 @@ package com.taskforge.task.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public class CreateTaskRequest {
@@ -14,6 +15,8 @@ public class CreateTaskRequest {
     private String status;
 
     private UUID assigneeId;
+
+    private LocalDate dueDate;
 
     public String getTitle() {
         return title;
@@ -45,5 +48,13 @@ public class CreateTaskRequest {
 
     public void setAssigneeId(UUID assigneeId) {
         this.assigneeId = assigneeId;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 }

@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await loginApi({ email, password });
-      setAuth(res.user, res.accessToken, res.refreshToken);
+      setAuth(res.user, res.accessToken);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');

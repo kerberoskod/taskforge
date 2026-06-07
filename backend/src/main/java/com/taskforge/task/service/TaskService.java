@@ -1,11 +1,17 @@
 package com.taskforge.task.service;
 
+import com.taskforge.activity.service.ActivityLogService;
+import com.taskforge.auth.repository.UserRepository;
+import com.taskforge.collaborator.service.CollaboratorService;
+import com.taskforge.label.service.LabelService;
 import com.taskforge.project.entity.Project;
 import com.taskforge.project.repository.ProjectRepository;
 import com.taskforge.task.dto.*;
 import com.taskforge.task.entity.Task;
 import com.taskforge.task.entity.TaskStatus;
 import com.taskforge.task.repository.TaskRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,20 +26,32 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final LabelService labelService;
+    private final CollaboratorService collaboratorService;
+    private final ActivityLogService activityLogService;
+    private final UserRepository userRepository;
 
-    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository) {
+    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository,
+                       LabelService labelService, CollaboratorService collaboratorService,
+                       ActivityLogService activityLogService, UserRepository userRepository) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
+        this.labelService = labelService;
+        this.collaboratorService = collaboratorService;
+        this.activityLogService = activityLogService;
+        this.userRepository = userRepository;
     }
 
-    public List<TaskResponse> getTasksByProject(UUID projectId) {
-        return taskRepository.findByProjectIdOrderByPositionAsc(projectId)
-                .stream()
-                .map(TaskResponse::new)
-                .toList();
+    public Page<TaskResponse> getTasksByProject(UUID projectId, Pageable pageable) {
+        return taskRepository.findByProjectId(projectId, pageable)
+                .map(task -> {
+                    TaskResponse response = new TaskResponse(task);
+                    response.setLabelIds(labelService.getTaskLabelIds(task.getId()));
+                    return response;
+                });
     }
 
-    public TaskResponse createTask(UUID projectId, CreateTaskRequest request) {
+    public TaskResponse createTask(UUID projectId, CreateTaskRequest request, UUID userId) {
         if (!projectRepository.existsById(projectId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
         }
@@ -56,11 +74,19 @@ public class TaskService {
                 projectId,
                 request.getAssigneeId()
         );
+        if (request.getDueDate() != null) {
+            task.setDueDate(request.getDueDate());
+        }
         taskRepository.save(task);
+
+        userRepository.findById(userId).ifPresent(user ->
+                activityLogService.log(projectId, userId, user.getName(), "CREATED", "TASK", task.getId(),
+                        "Created task: " + task.getTitle()));
+
         return new TaskResponse(task);
     }
 
-    public TaskResponse updateTask(UUID projectId, UUID taskId, UpdateTaskRequest request) {
+    public TaskResponse updateTask(UUID projectId, UUID taskId, UpdateTaskRequest request, UUID userId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
@@ -80,13 +106,21 @@ public class TaskService {
         if (request.getAssigneeId() != null) {
             task.setAssigneeId(request.getAssigneeId());
         }
+        if (request.getDueDate() != null) {
+            task.setDueDate(request.getDueDate());
+        }
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
+
+        userRepository.findById(userId).ifPresent(user ->
+                activityLogService.log(projectId, userId, user.getName(), "UPDATED", "TASK", taskId,
+                        "Updated task: " + task.getTitle()));
+
         return new TaskResponse(task);
     }
 
     @Transactional
-    public void updateTaskPosition(UUID projectId, UpdateTaskPositionRequest request) {
+    public void updateTaskPosition(UUID projectId, UpdateTaskPositionRequest request, UUID userId) {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
@@ -101,6 +135,10 @@ public class TaskService {
         if (oldStatus != newStatus) {
             rebalanceColumn(projectId, oldStatus);
         }
+
+        userRepository.findById(userId).ifPresent(user ->
+                activityLogService.log(projectId, userId, user.getName(), "MOVED", "TASK", request.getTaskId(),
+                        "Moved task from " + oldStatus + " to " + newStatus));
     }
 
     private void rebalanceColumn(UUID projectId, TaskStatus status) {
@@ -119,9 +157,15 @@ public class TaskService {
         }
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
-        if (!project.getOwnerId().equals(userId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this project");
+        if (!project.getOwnerId().equals(userId) && !collaboratorService.isCollaborator(projectId, userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to delete tasks in this project");
         }
+
+        String taskTitle = task.getTitle();
         taskRepository.deleteById(taskId);
+
+        userRepository.findById(userId).ifPresent(user ->
+                activityLogService.log(projectId, userId, user.getName(), "DELETED", "TASK", taskId,
+                        "Deleted task: " + taskTitle));
     }
 }

@@ -13,8 +13,16 @@ export interface CreateProjectData {
   description?: string;
 }
 
-export const getProjects = () =>
-  client.get<Project[]>('/projects').then((r) => r.data);
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export const getProjects = (page = 0, size = 12) =>
+  client.get<PageResponse<Project>>('/projects', { params: { page, size } }).then((r) => r.data);
 
 export const getProject = (id: string) =>
   client.get<Project>(`/projects/${id}`).then((r) => r.data);

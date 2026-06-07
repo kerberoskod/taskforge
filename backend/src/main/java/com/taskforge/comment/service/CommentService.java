@@ -1,11 +1,14 @@
 package com.taskforge.comment.service;
 
+import com.taskforge.activity.service.ActivityLogService;
 import com.taskforge.auth.entity.User;
 import com.taskforge.auth.repository.UserRepository;
 import com.taskforge.comment.dto.CommentRequest;
 import com.taskforge.comment.dto.CommentResponse;
 import com.taskforge.comment.entity.Comment;
 import com.taskforge.comment.repository.CommentRepository;
+import com.taskforge.task.entity.Task;
+import com.taskforge.task.repository.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,10 +21,15 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
+    private final TaskRepository taskRepository;
 
-    public CommentService(CommentRepository commentRepository, UserRepository userRepository) {
+    public CommentService(CommentRepository commentRepository, UserRepository userRepository,
+                          ActivityLogService activityLogService, TaskRepository taskRepository) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+        this.activityLogService = activityLogService;
+        this.taskRepository = taskRepository;
     }
 
     public List<CommentResponse> getCommentsByTask(UUID taskId) {
@@ -37,6 +45,11 @@ public class CommentService {
 
         Comment comment = new Comment(request.getContent(), taskId, authorId, author.getName());
         commentRepository.save(comment);
+
+        taskRepository.findById(taskId).ifPresent(task ->
+                activityLogService.log(task.getProjectId(), authorId, author.getName(), "COMMENTED", "TASK", taskId,
+                        "Added comment to task"));
+
         return new CommentResponse(comment);
     }
 

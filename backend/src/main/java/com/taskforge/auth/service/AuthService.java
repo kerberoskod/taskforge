@@ -23,7 +23,7 @@ public class AuthService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthTokens register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
         }
@@ -35,10 +35,10 @@ public class AuthService {
         );
         userRepository.save(user);
 
-        return buildAuthResponse(user);
+        return buildAuthTokens(user);
     }
 
-    public AuthResponse login(LoginRequest request) {
+    public AuthTokens login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
@@ -46,25 +46,27 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
-        return buildAuthResponse(user);
+        return buildAuthTokens(user);
     }
 
-    public AuthResponse refresh(RefreshTokenRequest request) {
-        if (!jwtTokenProvider.validateRefreshToken(request.getRefreshToken())) {
+    public AuthTokens refresh(String refreshToken) {
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
 
-        var userId = jwtTokenProvider.getUserIdFromRefreshToken(request.getRefreshToken());
+        var userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        return buildAuthResponse(user);
+        return buildAuthTokens(user);
     }
 
-    private AuthResponse buildAuthResponse(User user) {
+    private AuthTokens buildAuthTokens(User user) {
         String accessToken = jwtTokenProvider.generateAccessToken(user.getId(), user.getEmail());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
         var userDto = new AuthResponse.UserDto(user.getId(), user.getName(), user.getEmail());
-        return new AuthResponse(accessToken, refreshToken, userDto);
+        return new AuthTokens(accessToken, refreshToken, userDto);
     }
+
+    public record AuthTokens(String accessToken, String refreshToken, AuthResponse.UserDto user) {}
 }
