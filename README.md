@@ -442,8 +442,6 @@ TaskForge exists to demonstrate **full-stack development proficiency**:
 - **Clean Code** — Layered architecture, separation of concerns, no Lombok
 - **DevOps Ready** — Docker Compose, Nginx reverse proxy, CI pipeline
 
-This complements PayBridge (which focuses on microservices, event-driven architecture, and backend complexity) by showing versatility across the entire stack.
-
 ---
 
 ## License
@@ -454,7 +452,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Contact
 
-**Developer:** Karayan
+**Developer:** kerberoskod
 
 - **Email:** [kuvvetikarayan@mail.ru](mailto:kuvvetikarayan@mail.ru)
 - **Discord:** [kerberoskod](https://discord.com/users/kerberoskod)
