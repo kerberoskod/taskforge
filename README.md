@@ -426,7 +426,7 @@ client.activate();
 | **WebSocket (STOMP over SockJS)** | STOMP provides a pub-sub model over WebSocket with fallback options. Real-time board sync without polling |
 | **@hello-pangea/dnd** | Maintained fork of react-beautiful-dnd with React 18/19 support. Accessible drag-and-drop |
 | **Spring Security JWT Filter** | Stateless authentication without session management. JWT parsed in a OncePerRequestFilter |
-| **Single Database per App** | Monolithic database for simplicity — the project demonstrates full-stack skill, not distributed data patterns (see PayBridge for that) |
+| **Single Database per App** | Monolithic database for simplicity — the project demonstrates full-stack skill, not distributed data patterns |
 | **Apple-Inspired UI** | Clean, minimal design with system fonts, generous whitespace, and subtle borders |
 
 ---
